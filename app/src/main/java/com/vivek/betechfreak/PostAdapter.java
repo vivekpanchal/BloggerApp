@@ -1,6 +1,7 @@
 package com.vivek.betechfreak;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,10 +12,11 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private Context context;
@@ -37,24 +39,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
 
-        Item item = items.get(position);
+        final Item item = items.get(position);
         holder.postTitle.setText(item.getTitle());
-        holder.postDescription.setText(item.getContent());
 
-        Pattern p = Pattern.compile("<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>");
-        Matcher m=p.matcher(item.getContent());
-        List<String>tokens=new ArrayList<>();
-        while (m.find()){
-            String token=m.group(1);
-            tokens.add(token);
-        }
-        Glide.with(context).load(tokens.get(0)).into(holder.postImg);
+        Document document = Jsoup.parse(item.getContent());
+        holder.postDescription.setText(document.text());
+        Elements elements = document.select("img");
+        Glide.with(context).load(elements.get(0).attr("src")).into(holder.postImg);
+
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(context,DetailActivity.class);
+                intent.putExtra("url",item.getUrl());
+                context.startActivity(intent);
+
+
+            }
+        });
 
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return items.size();
     }
 
     public class PostViewHolder extends RecyclerView.ViewHolder {
