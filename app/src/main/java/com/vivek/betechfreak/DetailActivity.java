@@ -43,8 +43,9 @@ public class DetailActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.INVISIBLE);
                 webView.setVisibility(View.VISIBLE);
-                ;
 
+                String javaScript ="javascript:(function() { var a= document.getElementsByTagName('header');a[0].hidden='true';a=document.getElementsByClassName('page_body');a[0].style.padding='0px';})()";
+                webView.loadUrl(javaScript);
                 Toast.makeText(DetailActivity.this,"Page finished loading",Toast.LENGTH_SHORT).show();
 
             }
